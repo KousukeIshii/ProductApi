@@ -15,7 +15,8 @@ class RestApiController extends Controller
      */
     public function index()
     {
-        //
+        $items = product::all();
+        return $items;
     }
 
     /**
@@ -47,7 +48,15 @@ class RestApiController extends Controller
      */
     public function show($id)
     {
-        //
+        $data = product::find($id);
+        #$cantpath = asset("/storage/image/{$data->image}");
+        #ローカルパスを指定すると接続がタイムアウトしてしまい動かない
+        $path = "https://images-na.ssl-images-amazon.com/images/I/518Q5qbT6GL.jpg";
+        #外部のサイトのURLを指定すると動いてjsonがきちんと帰ってくる
+        $img = file_get_contents($path);
+        $img = base64_encode($img);
+        $data->image = $img;
+        return response()->json($data);
     }
 
     /**
