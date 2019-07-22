@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\product;
+use Illuminate\Support\Facades\Storage;
 
 use Illuminate\Http\Request;
 
@@ -49,11 +50,8 @@ class RestApiController extends Controller
     public function show($id)
     {
         $data = product::find($id);
-        #$cantpath = asset("/storage/image/{$data->image}");
-        #ローカルパスを指定すると接続がタイムアウトしてしまい動かない
-        $path = "https://images-na.ssl-images-amazon.com/images/I/518Q5qbT6GL.jpg";
-        #外部のサイトのURLを指定すると動いてjsonがきちんと帰ってくる
-        $img = file_get_contents($path);
+        $path = "/image/{$data->image}";
+        $img = Storage::get($path);
         $img = base64_encode($img);
         $data->image = $img;
         return response()->json($data);
