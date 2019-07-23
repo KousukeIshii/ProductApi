@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\product;
 use Illuminate\Support\Facades\Storage;
-
 use Illuminate\Http\Request;
 
 class RestApiController extends Controller
@@ -38,7 +37,39 @@ class RestApiController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        $request->validate([
+            'image' => 'required',
+            'name' => 'bail|required|unique:products|max:100',
+            'desc' => 'required|max:500',
+            'value' => 'required|integer'
+        ]);
+        if ( base64_encode(base64_decode($request->image, true)) !== $request->image) {
+            return response('画像はBASE64方式でエンコードされている必要があります。', 200)
+                ->header('Content-Type', 'application/json');
+        }
+        $file_name = md5(uniqid(rand(), true));
+        $img = base64_decode($request->image);
+        $type = finfo_buffer(finfo_open(), $img,FILEINFO_MIME_TYPE);
+        switch ($type) {
+            case 'image/jpeg':
+                $ext='jpg';
+                break;
+            case 'image/png':
+                $ext='png';
+                break;
+            case 'image/gif':
+                $ext='gif';
+                break;
+        }
+        Storage::put("/image/$file_name.$ext",$img);
+        $product = new product;
+
+        $product->fill($request->all());
+        $product->image = "$file_name.$ext";
+        $product->save();
+        return response('データベース更新完了', 200)
+            ->header('Content-Type', 'application/json');
     }
 
     /**
@@ -65,7 +96,7 @@ class RestApiController extends Controller
      */
     public function edit($id)
     {
-        //
+
     }
 
     /**
@@ -77,7 +108,9 @@ class RestApiController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $item = product::find($id);
+
+
     }
 
     /**
