@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductStoreRequest;
+use App\Http\Requests\ProductUpdateRequest;
 use App\product;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
@@ -96,9 +97,9 @@ class RestApiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(ProductUpdateRequest $request, $id)
     {
-        $item = product::find($id);
+        $product = product::find($id);
 
 
     }

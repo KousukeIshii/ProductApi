@@ -13,7 +13,7 @@ class ProductUpdateRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,34 @@ class ProductUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'image' => 'required_without_all:name,desc,value',
+            'name' => 'required_without_all:image,desc,value|unique:products|max:100',
+            'desc' => 'required_without_all:name,image,value|max:500',
+            'value' => 'required_without_all:name,desc,image|integer'
         ];
+    }
+    public function withValidator($validator) {
+        $validator->after(function ($validator) {
+            if($this->filled('image')) {
+                if (base64_encode(base64_decode($this->input('image'), true)) !== $this->input('image')) {
+                    $validator->errors()->add('image', 'Image must be encoded with BASE64');
+                }
+                $img = base64_decode($this->input('image'));
+                $type = finfo_buffer(finfo_open(), $img, FILEINFO_MIME_TYPE);
+                switch ($type) {
+                    case 'image/jpeg':
+                        $ext = 'jpg';
+                        break;
+                    case 'image/png':
+                        $ext = 'png';
+                        break;
+                    case 'image/gif':
+                        $ext = 'gif';
+                        break;
+                    default:
+                        $validator->errors()->add('image', 'extension must be jpg/png/gif');
+                }
+            }
+        });
     }
 }
