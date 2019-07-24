@@ -100,8 +100,37 @@ class RestApiController extends Controller
     public function update(ProductUpdateRequest $request, $id)
     {
         $product = product::find($id);
-
-
+        if($product == NULL) {
+            return response('存在しないIDです。', 200)
+                ->header('Content-Type', 'application/json');
+        }
+        if($request->filled('image')){
+            $file_name = md5(uniqid(rand(), true));
+            $img = base64_decode($request->image);
+            $type = finfo_buffer(finfo_open(), $img,FILEINFO_MIME_TYPE);
+            switch ($type) {
+                case 'image/jpeg':
+                    $ext='jpg';
+                    break;
+                case 'image/png':
+                    $ext='png';
+                    break;
+                case 'image/gif':
+                    $ext='gif';
+                    break;
+            }
+            Storage::delete("/image/$product->image");
+            Storage::put("/image/$file_name.$ext",$img);
+            $product->image = "$file_name.$ext";
+        }
+        foreach (array('name','desc','value') as $r){
+            if($request->filled($r)) {
+                $product->$r = $request->$r;
+            }
+        }
+        $product->save();
+        return response('データベース更新完了', 200)
+            ->header('Content-Type', 'application/json');
     }
 
     /**
