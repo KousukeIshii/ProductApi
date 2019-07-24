@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductStoreRequest;
 use App\product;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
@@ -35,19 +36,8 @@ class RestApiController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ProductStoreRequest $request)
     {
-
-        $request->validate([
-            'image' => 'required',
-            'name' => 'bail|required|unique:products|max:100',
-            'desc' => 'required|max:500',
-            'value' => 'required|integer'
-        ]);
-        if ( base64_encode(base64_decode($request->image, true)) !== $request->image) {
-            return response('画像はBASE64方式でエンコードされている必要があります。', 200)
-                ->header('Content-Type', 'application/json');
-        }
         $file_name = md5(uniqid(rand(), true));
         $img = base64_decode($request->image);
         $type = finfo_buffer(finfo_open(), $img,FILEINFO_MIME_TYPE);
