@@ -117,7 +117,11 @@ class RestApiController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $product = product::find($id);
+        Storage::delete($product->image);
+        $product->delete();
+        return response('データベース更新完了', 200)
+            ->header('Content-Type', 'application/json');
     }
 
     private function getFilename($img){
