@@ -39,25 +39,13 @@ class RestApiController extends Controller
      */
     public function store(ProductStoreRequest $request)
     {
-        $file_name = md5(uniqid(rand(), true));
-        $img = base64_decode($request->image);
-        $type = finfo_buffer(finfo_open(), $img,FILEINFO_MIME_TYPE);
-        switch ($type) {
-            case 'image/jpeg':
-                $ext='jpg';
-                break;
-            case 'image/png':
-                $ext='png';
-                break;
-            case 'image/gif':
-                $ext='gif';
-                break;
-        }
-        Storage::put("/image/$file_name.$ext",$img);
+        $img = $request->image;
+        $file_name = $this->getFilename($img);
+        Storage::put("/image/$file_name",$img);
         $product = new product;
 
         $product->fill($request->all());
-        $product->image = "$file_name.$ext";
+        $product->image = "$file_name";
         $product->save();
         return response('データベース更新完了', 200)
             ->header('Content-Type', 'application/json');
@@ -105,23 +93,11 @@ class RestApiController extends Controller
                 ->header('Content-Type', 'application/json');
         }
         if($request->filled('image')){
-            $file_name = md5(uniqid(rand(), true));
-            $img = base64_decode($request->image);
-            $type = finfo_buffer(finfo_open(), $img,FILEINFO_MIME_TYPE);
-            switch ($type) {
-                case 'image/jpeg':
-                    $ext='jpg';
-                    break;
-                case 'image/png':
-                    $ext='png';
-                    break;
-                case 'image/gif':
-                    $ext='gif';
-                    break;
-            }
+            $img = $request->image;
+            $file_name =$this->getFilename($img);
             Storage::delete("/image/$product->image");
-            Storage::put("/image/$file_name.$ext",$img);
-            $product->image = "$file_name.$ext";
+            Storage::put("/image/$file_name",$img);
+            $product->image = "$file_name";
         }
         foreach (array('name','desc','value') as $r){
             if($request->filled($r)) {
@@ -142,5 +118,24 @@ class RestApiController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    private function getFilename($img){
+        $file_name = md5(uniqid(rand(), true));
+        $img = base64_decode($img);
+        $type = finfo_buffer(finfo_open(), $img,FILEINFO_MIME_TYPE);
+        switch ($type) {
+            case 'image/jpeg':
+                $ext='jpg';
+                break;
+            case 'image/png':
+                $ext='png';
+                break;
+            case 'image/gif':
+                $ext='gif';
+                break;
+        }
+        $file_name = "$file_name.$ext";
+        return $file_name;
     }
 }
