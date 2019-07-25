@@ -43,9 +43,8 @@ class RestApiController extends Controller
         $file_name = $this->getFilename($img);
         Storage::put("/image/$file_name",$img);
         $product = new product;
-
         $product->fill($request->all());
-        $product->image = "$file_name";
+        $product->image = "$file_name"; //画像のファイル名をデータベースに保存
         $product->save();
         return response('データベース更新完了', 200)
             ->header('Content-Type', 'application/json');
@@ -59,12 +58,12 @@ class RestApiController extends Controller
      */
     public function show($id)
     {
-        $data = product::find($id);
-        $path = "/image/{$data->image}";
+        $product = product::find($id);
+        $path = "/image/{$product->image}"; //データベースのファイル名から画像を取得
         $img = Storage::get($path);
         $img = base64_encode($img);
-        $data->image = $img;
-        return response()->json($data);
+        $product->image = $img;
+        return response()->json($product);
     }
 
     /**
@@ -99,7 +98,7 @@ class RestApiController extends Controller
             Storage::put("/image/$file_name",$img);
             $product->image = "$file_name";
         }
-        foreach (array('name','desc','value') as $r){
+        foreach (array('name','desc','value') as $r){ //リクエストに含まれているデータのみ更新
             if($request->filled($r)) {
                 $product->$r = $request->$r;
             }
@@ -125,8 +124,8 @@ class RestApiController extends Controller
     }
 
     private function getFilename($img){
-        $file_name = md5(uniqid(rand(), true));
-        $img = base64_decode($img);
+        $file_name = md5(uniqid(rand(), true)); //ファイル名の動的作成
+        $img = base64_decode($img); //BASE64の画像をデコード
         $type = finfo_buffer(finfo_open(), $img,FILEINFO_MIME_TYPE);
         switch ($type) {
             case 'image/jpeg':
