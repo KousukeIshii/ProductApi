@@ -46,8 +46,11 @@ class RestApiController extends Controller
         $product->fill($request->all());
         $product->image = "$file_name"; //画像のファイル名をデータベースに保存
         $product->save();
-        return response('データベース更新完了', 200)
-            ->header('Content-Type', 'application/json');
+
+        $response['status']  = 'OK';
+        $response['summary'] = 'success.';
+        $response['data']    = [];
+        return $response;
     }
 
     /**
@@ -63,7 +66,11 @@ class RestApiController extends Controller
         $img = Storage::get($path);
         $img = base64_encode($img);
         $product->image = $img;
-        return response()->json($product);
+
+        $response['status']  = 'OK';
+        $response['summary'] = 'success.';
+        $response['data']    = $product;
+        return $response;
     }
 
     /**
@@ -88,8 +95,10 @@ class RestApiController extends Controller
     {
         $product = product::find($id);
         if($product == NULL) {
-            return response('存在しないIDです。', 200)
-                ->header('Content-Type', 'application/json');
+            $response['status']  = 'OK';
+            $response['summary'] = '存在しないIDです。';
+            $response['data']    = [];
+            return $response;
         }
         if($request->filled('image')){
             $img = $request->image;
@@ -104,8 +113,11 @@ class RestApiController extends Controller
             }
         }
         $product->save();
-        return response('データベース更新完了', 200)
-            ->header('Content-Type', 'application/json');
+
+        $response['status']  = 'OK';
+        $response['summary'] = 'success.';
+        $response['data']    = [];
+        return $response;
     }
 
     /**
@@ -119,8 +131,11 @@ class RestApiController extends Controller
         $product = product::find($id);
         Storage::delete($product->image);
         $product->delete();
-        return response('データベース更新完了', 200)
-            ->header('Content-Type', 'application/json');
+
+        $response['status']  = 'OK';
+        $response['summary'] = 'success.';
+        $response['data']    = [];
+        return $response;
     }
 
     private function getFilename($img){
