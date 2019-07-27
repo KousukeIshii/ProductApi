@@ -15,4 +15,5 @@ use Illuminate\Http\Request;
 
 Route::group(['middleware' => ['api']], function(){
     Route::resource('product', 'RestApiController');
+    Route::resource('search','SearchController');
 });
