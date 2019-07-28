@@ -17,8 +17,11 @@ class RestApiController extends Controller
      */
     public function index()
     {
-        $items = product::all();
-        return $items;
+        $product = product::all();
+        $response['status']  = 'OK';
+        $response['summary'] = 'success.';
+        $response['data']    = $product;
+        return $response;
     }
 
     /**
