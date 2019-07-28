@@ -65,11 +65,20 @@ class RestApiController extends Controller
     public function show($id)
     {
         $product = product::find($id);
+        if($this->checkData($product) != NULL) {
+            $response = $this->checkData($product);
+            return $response;
+        }
         $path = "/image/{$product->image}"; //データベースのファイル名から画像を取得
-        $img = Storage::get($path);
-        $img = base64_encode($img);
-        $product->image = $img;
 
+        if(Storage::exists($path)) {//画像データがストレージにあった場合はデータを取得
+            $img = Storage::get($path);
+            $img = base64_encode($img);
+        } else { //画像データがなければメッセージを返す
+            $img = "商品画像は削除されました。";
+        }
+
+        $product->image = $img;
         $response['status']  = 'OK';
         $response['summary'] = 'success.';
         $response['data']    = $product;
@@ -97,17 +106,17 @@ class RestApiController extends Controller
     public function update(ProductUpdateRequest $request, $id)
     {
         $product = product::find($id);
-        if($product == NULL) {
-            $response['status']  = 'OK';
-            $response['summary'] = '存在しないIDです。';
-            $response['data']    = [];
+        if($this->checkData($product) != NULL) {
+            $response = $this->checkData($product);
             return $response;
         }
-        if($request->filled('image')){
+        if($request->filled('image')){ //requestに画像ファイルが含まれていれば画像ファイルを更新
             $img = $request->image;
-            $file_name =$this->getFilename($img);
-            Storage::delete("/image/$product->image");
-            Storage::put("/image/$file_name",$img);
+            if(Storage::exists("/image/$product->image")) {
+                Storage::delete("/image/$product->image");
+            }
+            $file_name = $this->getFilename($img);
+            Storage::put("/image/$file_name", $img);
             $product->image = "$file_name";
         }
         foreach (array('name','desc','value') as $r){ //リクエストに含まれているデータのみ更新
@@ -132,7 +141,13 @@ class RestApiController extends Controller
     public function destroy($id)
     {
         $product = product::find($id);
-        Storage::delete($product->image);
+        if($this->checkData($product) != NULL) {
+            $response = $this->checkData($product);
+            return $response;
+        }
+        if(Storage::exists("/image/$product->image")) {
+            Storage::delete("/image/$product->image");
+        }
         $product->delete();
 
         $response['status']  = 'OK';
@@ -158,5 +173,15 @@ class RestApiController extends Controller
         }
         $file_name = "$file_name.$ext";
         return $file_name;
+    }
+
+    private function checkData($data){
+        if($data == NULL){
+            $response['status']  = 'NG';
+            $response['summary'] = '存在しないIDです。';
+            $response['data']    = [];
+            return $response;
+        }
+        return NULL;
     }
 }
