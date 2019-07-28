@@ -44,7 +44,8 @@ class RestApiController extends Controller
     {
         $img = $request->image;
         $file_name = $this->getFilename($img);
-        Storage::put("/image/$file_name",$img);
+        $img = base64_decode($img);
+        Storage::disk('s3')->put("/image/$file_name",$img);
         $product = new product;
         $product->fill($request->all());
         $product->image = "$file_name"; //画像のファイル名をデータベースに保存
@@ -71,8 +72,8 @@ class RestApiController extends Controller
         }
         $path = "/image/{$product->image}"; //データベースのファイル名から画像を取得
 
-        if(Storage::exists($path)) {//画像データがストレージにあった場合はデータを取得
-            $img = Storage::get($path);
+        if(Storage::disk('s3')->exists($path)) {//画像データがストレージにあった場合はデータを取得
+            $img = Storage::disk('s3')->get($path);
             $img = base64_encode($img);
         } else { //画像データがなければメッセージを返す
             $img = "商品画像は削除されました。";
@@ -112,11 +113,11 @@ class RestApiController extends Controller
         }
         if($request->filled('image')){ //requestに画像ファイルが含まれていれば画像ファイルを更新
             $img = $request->image;
-            if(Storage::exists("/image/$product->image")) {
-                Storage::delete("/image/$product->image");
+            if(Storage::disk('s3')->exists("/image/$product->image")) {
+                Storage::disk('s3')->delete("/image/$product->image");
             }
             $file_name = $this->getFilename($img);
-            Storage::put("/image/$file_name", $img);
+            Storage::disk('s3')->put("/image/$file_name", $img);
             $product->image = "$file_name";
         }
         foreach (array('name','desc','value') as $r){ //リクエストに含まれているデータのみ更新
@@ -145,8 +146,8 @@ class RestApiController extends Controller
             $response = $this->checkData($product);
             return $response;
         }
-        if(Storage::exists("/image/$product->image")) {
-            Storage::delete("/image/$product->image");
+        if(Storage::disk('s3')->exists("/image/$product->image")) {
+            Storage::disk('s3')->delete("/image/$product->image");
         }
         $product->delete();
 
