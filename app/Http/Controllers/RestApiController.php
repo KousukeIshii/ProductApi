@@ -18,7 +18,7 @@ class RestApiController extends Controller
     public function index()
     {
         $product = product::all();
-        $response['status']  = 'OK';
+        $response['status']  = '200 OK';
         $response['summary'] = 'success.';
         $response['data']    = $product;
         return $response;
@@ -51,7 +51,7 @@ class RestApiController extends Controller
         $product->image = "$file_name"; //画像のファイル名をデータベースに保存
         $product->save();
 
-        $response['status']  = 'OK';
+        $response['status']  = '200 OK';
         $response['summary'] = 'success.';
         $response['data']    = [];
         return $response;
@@ -80,7 +80,7 @@ class RestApiController extends Controller
         }
 
         $product->image = $img;
-        $response['status']  = 'OK';
+        $response['status']  = '200 OK';
         $response['summary'] = 'success.';
         $response['data']    = $product;
         return $response;
@@ -127,7 +127,7 @@ class RestApiController extends Controller
         }
         $product->save();
 
-        $response['status']  = 'OK';
+        $response['status']  = '200 OK';
         $response['summary'] = 'success.';
         $response['data']    = [];
         return $response;
@@ -151,7 +151,7 @@ class RestApiController extends Controller
         }
         $product->delete();
 
-        $response['status']  = 'OK';
+        $response['status']  = '200 OK';
         $response['summary'] = 'success.';
         $response['data']    = [];
         return $response;
@@ -178,7 +178,7 @@ class RestApiController extends Controller
 
     private function checkData($data){
         if($data == NULL){
-            $response['status']  = 'NG';
+            $response['status']  = '400 Bad request';
             $response['summary'] = '存在しないIDです。';
             $response['data']    = [];
             return $response;

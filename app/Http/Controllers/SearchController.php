@@ -13,7 +13,7 @@ class SearchController extends Controller
         $query = product::query();
 
         //keyword項目に入っていたらnameから検索
-        if($request->filled('keyword')){
+        if($request->filled('name')){
             $query->where('name','like','%'. $request->keyword .'%');
         }
 
@@ -22,7 +22,7 @@ class SearchController extends Controller
             $query->whereBetween('value',[$request->min_value,$request->max_value]);
         }
         $product = $query->get();
-        $response['status']  = 'OK';
+        $response['status']  = '200 OK';
         $response['summary'] = 'success.';
         $response['data']    = $product;
         return $response;
