@@ -53,7 +53,6 @@ class RestApiController extends Controller
 
         $response['status']  = '200 OK';
         $response['summary'] = 'success.';
-        $response['data']    = [];
         return $response;
     }
 
@@ -129,7 +128,6 @@ class RestApiController extends Controller
 
         $response['status']  = '200 OK';
         $response['summary'] = 'success.';
-        $response['data']    = [];
         return $response;
     }
 
@@ -180,7 +178,6 @@ class RestApiController extends Controller
         if($data == NULL){
             $response['status']  = '400 Bad request';
             $response['summary'] = '存在しないIDです。';
-            $response['data']    = [];
             return $response;
         }
         return NULL;

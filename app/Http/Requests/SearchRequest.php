@@ -3,6 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Contracts\Validation\Validator;
+
 
 class SearchRequest extends FormRequest
 {
@@ -24,7 +27,7 @@ class SearchRequest extends FormRequest
     public function rules()
     {
         return [
-            'keyword' => 'required_without_all:min_value,max_value',
+            'name' => 'required_without_all:min_value,max_value',
             'min_value' => 'required_without:keyword|required_with:max_value|integer',
             'max_value' => 'required_without:keyword|required_with:min_value|integer'
         ];
@@ -39,6 +42,17 @@ class SearchRequest extends FormRequest
                 }
             }
         });
+    }
+    protected function failedValidation( Validator $validator )
+    {
+        $response['data']    = [];
+        $response['status']  = 'NG';
+        $response['summary'] = 'Failed validation.';
+        $response['errors']  = $validator->errors()->toArray();
+
+        throw new HttpResponseException(
+            response()->json( $response, 422 )
+        );
     }
 }
 

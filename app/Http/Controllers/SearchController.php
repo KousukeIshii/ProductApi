@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\product;
 use Illuminate\Http\Request;
 use App\Http\Requests\SearchRequest;
+use Illuminate\Support\Facades\Storage;
 
 class SearchController extends Controller
 {
@@ -22,6 +23,15 @@ class SearchController extends Controller
             $query->whereBetween('value',[$request->min_value,$request->max_value]);
         }
         $product = $query->get();
+        foreach ($product as $p){
+            if(Storage::disk('s3')->exists("/image/$p->image")) {
+                $img = Storage::disk('s3')->get("/image/$p->image");
+                $p->image = base64_encode($img);
+            } else {
+                $p->image = "Image not found";
+            }
+        }
+
         $response['status']  = '200 OK';
         $response['summary'] = 'success.';
         $response['data']    = $product;
