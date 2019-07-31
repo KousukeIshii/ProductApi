@@ -67,7 +67,7 @@ class RestApiController extends Controller
         $product = product::find($id);
         if($this->checkData($product) != NULL) {
             $response = $this->checkData($product);
-            return $response;
+            return response()->json($response,400);
         }
         $path = "/image/{$product->image}"; //データベースのファイル名から画像を取得
 
@@ -108,7 +108,7 @@ class RestApiController extends Controller
         $product = product::find($id);
         if($this->checkData($product) != NULL) {
             $response = $this->checkData($product);
-            return $response;
+            return response()->json($response,400);
         }
         if($request->filled('image')){ //requestに画像ファイルが含まれていれば画像ファイルを更新
             $img = $request->image;
@@ -142,7 +142,7 @@ class RestApiController extends Controller
         $product = product::find($id);
         if($this->checkData($product) != NULL) {
             $response = $this->checkData($product);
-            return $response;
+            return response()->json($response,400);
         }
         if(Storage::disk('s3')->exists("/image/$product->image")) {
             Storage::disk('s3')->delete("/image/$product->image");
