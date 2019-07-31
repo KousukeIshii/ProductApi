@@ -1,0 +1,245 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: ProductApi
+  description: "商品データを扱うRestfulApi"
+basePath: /api
+paths:
+  /product:
+    get:
+      summary:  "全商品データを返す。"
+      description:  "デバッグ用に画像ファイル名を返します。削除せずに一応残しておきました。"
+      responses: 
+        200:
+          description:  "処理成功時のレスポンス"
+          schema:
+            $ref: "#/definitions/index"
+        500:
+          description:  "サーバー内部のエラー"
+    post:
+      summary:  "新しい商品データを登録する。"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "登録する商品データ"
+        required: true
+        schema:
+          $ref: "#/definitions/Post"
+      responses:
+        200:
+          description:  "処理成功時のレスポンス"
+          schema:
+            $ref: "#/definitions/Status"
+        400:
+          description:  "不正なリクエスト"
+          schema:
+            $ref: "#/definitions/BadStatus"
+        500:
+          description:  "サーバー内部のエラー"
+          
+  /product/{productId}:  
+    get:
+      summary: "指定されたIDの商品データを返す。"
+      parameters:
+      - name: "productId"
+        in: "path"
+        description: "取得したい商品のID"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description:  "処理成功時のレスポンス"
+          schema:
+            $ref: "#/definitions/Get"
+        400:
+          description:  "不正なリクエスト"
+          schema:
+            $ref: "#/definitions/BadStatus"
+          
+        500:
+          description:  "サーバー内部のエラー"
+    patch:
+      summary: "指定されたIDの商品データを更新する。"
+      description:  "更新しないデータは省略可"
+      parameters:
+      - name: "productId"
+        in: "path"
+        description: "取得したい商品のID"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description:  "処理成功時のレスポンス"
+          schema:
+            $ref: "#/definitions/Status"
+        400:
+          description:  "不正なリクエスト"
+          schema:
+            $ref: '#/definitions/BadStatus'
+        422:
+          description:  "バリデーション失敗"
+        500:
+          description:  "サーバー内部のエラー"
+    delete:
+      summary: "指定されたIDの商品データを削除する。"
+      parameters:
+      - name: "productId"
+        in: "path"
+        description: "取得したい商品のID"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "処理成功時のレスポンス"
+          schema:
+            $ref: "#/definitions/Status"
+        400:
+          description:  "不正なリクエスト"
+          schema:
+            $ref: '#/definitions/BadStatus'
+        500:
+          description:  "サーバー内部のエラー"
+          
+  /search:
+    post:
+      summary: "商品を検索する。"
+      description:  "指定された条件から検索を行う。名前、値段もしくは両方を利用する。"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "検索条件"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            name:
+              type: "string"
+              example:  "ワイン"
+            min_value:
+              type: "integer"
+              format: "int64"
+              example:  1000
+            max_value:
+              type: "integer"
+              format: "int64"
+              example:  2000
+      responses:
+        200:
+          description: "処理成功時のレスポンス"
+          schema:
+            $ref: '#/definitions/Get'
+        422:
+          description:  "バリデーション失敗"
+        500:
+          description:  "サーバー内部のエラー"
+          
+      
+definitions:
+  index: 
+    type: "object"
+    properties: 
+      status:
+        type: "string"
+        example:  "200 ok"
+      summary:
+        type: "string"
+        example:  "success."
+      data:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            id:
+              type: "integer"
+              format: "int64"
+              example:  1
+            image:
+              type: "string"
+              example: "6af84bcf5f7e7a22becf0aa4860252dc.jpg"
+            name:
+              type: "string"
+              example:  "ミックスナッツ ロースト"
+            desc:
+              type: "string"
+              example:  "5種の贅沢 ミックスナッツ1kg アーモンド 生カシューナッツ 生くるみ パンプキンシード ピーナッツ"
+            value:
+              type: "integer"
+              format: "int64"
+              example:  2150
+  Get: 
+    type: "object"
+    properties: 
+      status:
+        type: "string"
+        example:  "200 ok"
+      summary:
+        type: "string"
+        example:  "success."
+      data:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            id:
+              type: "integer"
+              format: "int64"
+              example:  1
+            image:
+              type: "string"
+              example: "Base64でエンコードされた画像データ"
+            name:
+              type: "string"
+              example:  "ミックスナッツ ロースト"
+            desc:
+              type: "string"
+              example:  "5種の贅沢 ミックスナッツ1kg アーモンド 生カシューナッツ 生くるみ パンプキンシード ピーナッツ"
+            value:
+              type: "integer"
+              format: "int64"
+              example:  2150
+  Post:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        example:  1
+      image:
+        type: "string"
+        format: "byte"
+        example: "base64でエンコードされた画像データ"
+      name:
+        type: "string"
+        example:  "ミックスナッツ ロースト"
+      desc:
+        type: "string"
+        example:  "5種の贅沢 ミックスナッツ1kg アーモンド 生カシューナッツ 生くるみ パンプキンシード ピーナッツ"
+      value:
+        type: "integer"
+        format: "int64"
+        example:  2150
+  Status:
+    type: "object"
+    properties: 
+      status:
+        type: "string"
+        example:  "200 ok"
+      summary:
+        type: "string"
+        example:  "success."
+  BadStatus:
+    type: "object"
+    properties: 
+      status:
+        type: "string"
+        example:  "400 Bad request"
+      summary:
+        type: "string"
+        example:  "存在しないIDです。"
+  
+          
